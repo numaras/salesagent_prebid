@@ -714,18 +714,22 @@ class Format(LibraryFormat):
             Tuple of (width, height) in pixels, or None if not available.
         """
         # Try format_id parameters first (AdCP 2.5 parameterized formats)
-        dims = self.format_id.get_dimensions()  # type: ignore[attr-defined]  # our FormatId subclass
-        if dims is not None:
-            return dims
+        # Use getattr so mismatched library versions or unexpected types degrade gracefully
+        fid = self.format_id
+        width = getattr(fid, "width", None)
+        height = getattr(fid, "height", None)
+        if width is not None and height is not None:
+            return (int(width), int(height))
 
         # Try renders field (AdCP spec - renders is list of Render objects)
         if self.renders and len(self.renders) > 0:
             primary_render = self.renders[0]  # First render is typically primary
-            if primary_render.dimensions:
-                render_dims = primary_render.dimensions
-                # dimensions is a Dimensions object with width/height attributes
-                if render_dims.width is not None and render_dims.height is not None:
-                    return (int(render_dims.width), int(render_dims.height))
+            render_dims = getattr(primary_render, "dimensions", None)
+            if render_dims:
+                w = getattr(render_dims, "width", None)
+                h = getattr(render_dims, "height", None)
+                if w is not None and h is not None:
+                    return (int(w), int(h))
 
         # Fallback to requirements field (legacy, internal field)
         if self.requirements:
