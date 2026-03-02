@@ -5,7 +5,7 @@ similar to how A2A handles conversation context.
 """
 
 from collections.abc import Callable
-from typing import Any
+from typing import Any, cast
 
 from fastmcp import FastMCP
 from fastmcp.server.context import Context as FastMCPContext
@@ -45,8 +45,8 @@ class EnhancedMCPServer(FastMCP):
         def decorator(f: Callable) -> FunctionTool:
             # First wrap with context management
             wrapped = self.context_wrapper.wrap_tool(f)
-            # Then apply the FastMCP tool decorator
-            return self._original_tool_decorator(wrapped, **kwargs)
+            # Then apply the FastMCP tool decorator — returns FunctionTool when called with a callable
+            return cast(FunctionTool, self._original_tool_decorator(wrapped, **kwargs))
 
         if func is None:
             return decorator
