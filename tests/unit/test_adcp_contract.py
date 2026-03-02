@@ -123,7 +123,8 @@ class TestSchemaMatchesLibrary:
         local_fields = set(GetProductsRequest.model_fields.keys())
         # TODO(adcp-lib): Remove allowlist when adcp library adds these fields
         # product_selectors — internal-only field
-        # buying_mode, brand, catalog, account, buyer_campaign_ref, pagination — spec fields not yet in adcp library v3.2.0
+        # buying_mode, brand, catalog, account, buyer_campaign_ref, pagination,
+        # fields, refine — spec fields not yet in adcp library v3.2.0
         local_extensions = {
             "product_selectors",
             "buying_mode",
@@ -132,6 +133,8 @@ class TestSchemaMatchesLibrary:
             "catalog",
             "account",
             "buyer_campaign_ref",
+            "fields",
+            "refine",
         }
         assert (
             lib_fields == local_fields - local_extensions
@@ -141,8 +144,9 @@ class TestSchemaMatchesLibrary:
         lib_fields = set(LibGetMediaBuyDeliveryRequest.model_fields.keys())
         local_fields = set(LocalGetMediaBuyDeliveryRequest.model_fields.keys())
         # TODO(adcp-lib): Remove allowlist when adcp library adds these fields
-        # account_id, account, reporting_dimensions — spec fields not yet in adcp library v3.2.0
-        local_extensions = {"account_id", "account", "reporting_dimensions"}
+        # account_id, account, reporting_dimensions, include_package_daily_breakdown,
+        # attribution_window — spec fields not yet in adcp library v3.2.0
+        local_extensions = {"account_id", "account", "reporting_dimensions", "include_package_daily_breakdown", "attribution_window"}
         assert (
             lib_fields == local_fields - local_extensions
         ), f"GetMediaBuyDeliveryRequest drift: lib={lib_fields}, local={local_fields}"
@@ -182,8 +186,9 @@ class TestSchemaMatchesLibrary:
         # SyncCreativesRequest - local extends library with spec fields not yet in library
         lib_fields = set(LibSyncCreativesRequest.model_fields.keys())
         local_fields = set(LocalSyncCreativesRequest.model_fields.keys())
-        # TODO(adcp-lib): Remove allowlist when adcp library adds account
-        local_extensions = {"account"}
+        # TODO(adcp-lib): Remove allowlist when adcp library adds these fields
+        # account, idempotency_key — spec fields not yet in adcp library v3.2.0
+        local_extensions = {"account", "idempotency_key"}
         assert (
             lib_fields == local_fields - local_extensions
         ), f"SyncCreativesRequest drift: lib={lib_fields}, local={local_fields}"

@@ -1509,6 +1509,14 @@ class GetProductsRequest(LibraryGetProductsRequest):
         None,
         description="Cursor-based pagination parameters (max_results, cursor)",
     )
+    fields: list[str] | None = Field(
+        None,
+        description="Specific product fields to include in the response. When omitted, all fields are returned.",
+    )
+    refine: list[dict[str, Any]] | None = Field(
+        None,
+        description="Array of change requests for iterating on products from a previous get_products response. Only valid when buying_mode is 'refine'.",
+    )
 
     # Internal-only fields (not in AdCP spec)
     product_selectors: LibraryPromotedProducts | None = Field(
@@ -1892,10 +1900,16 @@ class SyncCreativesRequest(LibrarySyncCreativesRequest):
 
     model_config = ConfigDict(extra=get_pydantic_extra_mode())
 
-    # Spec field not yet in adcp library v3.2.0
+    # Spec fields not yet in adcp library v3.2.0
     account: dict[str, Any] | None = Field(
         None,
         description="Account that owns these creatives (spec: account-ref.json)",
+    )
+    idempotency_key: str | None = Field(
+        None,
+        min_length=8,
+        max_length=255,
+        description="Client-generated idempotency key for safe retries. Guarantees at-most-once execution.",
     )
 
     creatives: list[Creative] = Field(..., description="Array of creative assets to sync (create or update)")  # type: ignore[assignment]
@@ -2704,6 +2718,14 @@ class GetMediaBuyDeliveryRequest(LibraryGetMediaBuyDeliveryRequest):
         None,
         description="Request dimensional breakdowns in delivery reporting (geo, device_type, device_platform, audience, placement)",
     )
+    include_package_daily_breakdown: bool | None = Field(
+        None,
+        description="When true, include daily_breakdown arrays within each package. Omit or set false to reduce response size.",
+    )
+    attribution_window: dict[str, Any] | None = Field(
+        None,
+        description="Attribution window to apply for conversion metrics (post_click, post_view, model).",
+    )
 
 
 # AdCP-compliant delivery models
@@ -2968,6 +2990,12 @@ class UpdateMediaBuyRequest(LibraryUpdateMediaBuyRequest1):
     packages: list[AdCPPackageUpdate] | None = None  # type: ignore[assignment]
     # Campaign-level budget (not in library spec — convenience field)
     budget: Budget | None = None
+    idempotency_key: str | None = Field(
+        None,
+        min_length=8,
+        max_length=255,
+        description="Client-generated idempotency key for safe retries. Guarantees at-most-once execution.",
+    )
     # Internal testing field
     today: date | None = Field(None, exclude=True, description="For testing/simulation only - not part of AdCP spec")
 
